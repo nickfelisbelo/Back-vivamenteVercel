@@ -12,13 +12,14 @@ const cadastrar = async dados => {
     if (!dados.nome || !dados.email || !dados.senha) {
         throw new Error("Nome, e-mail e senha são obrigatórios");
     }
-    const existente = await prisma.psicologo.findUnique({ where: { email: dados.email } });
+    const email = dados.email.trim().toLowerCase();
+    const existente = await prisma.psicologo.findUnique({ where: { email } });
     if (existente) throw new Error("E-mail já cadastrado");
 
     const psicologo = await prisma.psicologo.create({
         data: {
             nome: criptografar(dados.nome),
-            email: dados.email.trim().toLowerCase(),
+            email,
             senha: hashPassword(dados.senha)
         }
     });

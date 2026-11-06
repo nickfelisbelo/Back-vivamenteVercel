@@ -1,12 +1,16 @@
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 
+const url = new URL(process.env.DATABASE_URL);
+url.searchParams.delete("sslmode");
+url.searchParams.delete("pgbouncer");
+
 const adapter = new PrismaPg({
-    connectionString: process.env.DATABASE_URL
+    connectionString: url.toString(),
+    ssl: { rejectUnauthorized: false },
+    max: 3 
 });
 
-const prisma = new PrismaClient({
-    adapter
-});
+const prisma = new PrismaClient({ adapter });
 
 module.exports = prisma;

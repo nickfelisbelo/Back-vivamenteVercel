@@ -1,0 +1,100 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Psicologo {
+    id        Int    @id @default(autoincrement())
+    nome      String
+    email     String @unique
+    senha     String
+
+    consultas Consulta[]
+    pacientes Paciente[]
+}
+
+model Paciente {
+    id          Int    @id @default(autoincrement())
+    nome        String
+    email       String @unique
+    senha       String
+    psicologoId Int
+    pontos      Int    @default(0)
+
+    psicologo Psicologo @relation(fields: [psicologoId], references: [id])
+    consultas Consulta[]
+    tarefas   Tarefa[]
+    conversas Conversa[]
+    checkins   Checkin[]
+}
+
+model Consulta {
+    id          Int      @id @default(autoincrement())
+    data        DateTime
+    psicologoId Int
+    pacienteId  Int
+
+    psicologo Psicologo @relation(fields: [psicologoId], references: [id])
+    paciente  Paciente  @relation(fields: [pacienteId], references: [id])
+}
+
+model Recompensa {
+    id        Int    @id @default(autoincrement())
+    nome      String
+    descricao String
+    preco     Int
+}
+
+model Tarefa {
+    id         Int    @id @default(autoincrement())
+    nome       String
+    descricao  String
+    status     String
+    pontos     Int
+    pacienteId Int
+
+    paciente Paciente @relation(fields: [pacienteId], references: [id])
+}
+
+model Conversa {
+    id        Int      @id @default(autoincrement())
+    pacienteId Int
+    criadaEm  DateTime @default(now())
+
+    paciente  Paciente @relation(fields: [pacienteId], references: [id])
+    mensagens Mensagem[]
+}
+
+model Mensagem {
+    id         Int      @id @default(autoincrement())
+    conversaId Int
+    tipo       String
+    texto      String
+    criadaEm   DateTime @default(now())
+
+    conversa Conversa @relation(fields: [conversaId], references: [id])
+}
+
+
+model Checkin {
+    id         Int      @id @default(autoincrement())
+    data       DateTime @default(now())
+    dia        DateTime @db.Date
+    pacienteId Int
+
+    paciente Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+
+    @@unique([pacienteId, dia])
+}
+
+model Contato {
+    id       Int      @id @default(autoincrement())
+    nome     String
+    email    String
+    assunto  String
+    mensagem String
+    criadaEm DateTime @default(now())
+}
